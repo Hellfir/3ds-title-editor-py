@@ -14,9 +14,15 @@ def readTID(F, startingOffset):
     #afterwards, reverses the array, and returns it after being transformed to a string with hypens changed to spaces
     programCode = []
     F.seek(startingOffset + 0x118, 0)
-    F.read(8i)
+    programCode = F.read(4)
+    titleID = ""
+    for i in range(4):
+        if (programCode[3-i] > 15):
+            titleID = titleID + hex(programCode[3-i])[2:4]
+        else:
+            titleID = titleID + "0" + hex(programCode[3-i])[2]
 
-    return "test"
+    return titleID
 
 
 
@@ -26,14 +32,12 @@ if __name__ == '__main__':
 
     #open file to read binary to check filetype
     F = open(filepath, "rb")
-    #we need to read 4 bytes? from the position I've seeked to
-    #I HAVE NO IDEA IF THE NEXT 4 LINES ARE CORRECT
+    #we need to read 4 bytes from the position I've seeked to
     filetype = []
     F.seek(0x100,0)
-    for i in range(4):
-        filetype[i] = F.read(8)
-    
+    filetype = F.read(4)
     F.close()
+
     #will be used to determine where titleID is
     startingOffset = -1
 
@@ -42,33 +46,37 @@ if __name__ == '__main__':
         startingOffset = 0x4000
     elif (isNCCH(filetype)):
         startingOffset = 0x0
-    else
+    else:
         print("wrong game image")
         exit()
-
-    #current variables:
-    #filetype, 4 bytes read from file
-    #startingOffset, dependant on NCCH or NCSD
-    #filepath, the path for input ROM
-
+    
     #get current TID
     F = open(filepath, "rb")
     titleID = readTID(F, startingOffset)
     print("Current title ID is: " + str(titleID))
     F.close()
+
+
     #newTID must be 16 characters in length, and in hex?
     #check lines 119-126 in original
     newTID = input("Enter new title ID: ")
+    if (len(newTID) != 8):
+        print("new ID length must be 8")
+        exit()
+    #elif not hex
+        #print("new ID must be in hex (0-9, a-f characters)")
+        #exit()
+    else:
 
-    titleIdBytes = []
-    for i in range(int(len(newTID)/2)):
+    #titleIdBytes = []
+    #for i in range(int(len(newTID)/2)):
         #no idea how to convert it to bytes, or what type of values are needed precisely
-        titleIdBytes[i] = convertToBytes(newTID[(i*2):((i*2)+2)]
-    titleIdBytes = titleIdBytes[-1:-(len(titleIdBytes)+1):-1]
+    #    titleIdBytes[i] = convertToBytes(newTID[(i*2):((i*2)+2)]
+    #titleIdBytes = titleIdBytes[-1:-(len(titleIdBytes)+1):-1]
 
-    F = open(filepath, wb)
-    F.seek(startingOffset + 0x118, 0)
-    F.write(titleIdBytes)
-    F.close()
+    #F = open(filepath, wb)
+    #F.seek(startingOffset + 0x118, 0)
+    #F.write(titleIdBytes)
+    #F.close()
     
-    print("Title ID changed.")
+    #print("Title ID changed.")
