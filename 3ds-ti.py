@@ -1,3 +1,12 @@
+import argparse
+import string
+#allows to be used as a single command from CLI
+#must be done in form $ python script.py -r "[file]" -n "[newID]"
+parser = argparse.ArgumentParser()
+parser.add_argument("-r", type=str, help="Rom file to be changed")
+parser.add_argument("-n", type=str, help="New title ID to use")
+args = parser.parse_args()
+
 def isNCSD(filetype):
     #filetype is an array of 4 hex bytes, must equal the following to be NCSD format
     return filetype[0] == 0x4E and filetype[1] == 0x43 and filetype[2] == 0x53 and filetype[3] == 0x44
@@ -17,14 +26,14 @@ def readTID(F, startingOffset):
             titleID = titleID + hex(programCode[3-i])[2:4]
         else:
             titleID = titleID + "0" + hex(programCode[3-i])[2]
-
     return titleID
-
-
 
 if __name__ == '__main__':
     #get 3ds rom input
-    filepath=input("filepath: ")
+    if (args.r):
+        filepath=args.r
+    else:     
+        filepath=input("filepath: ")
 
     #open file to read binary to check filetype
     F = open(filepath, "rb")
@@ -46,28 +55,30 @@ if __name__ == '__main__':
         print("wrong game image")
         exit()
     
-    #get current TID
+    #get and print current TID
     F = open(filepath, "rb")
     titleID = readTID(F, startingOffset)
     print("Current title ID is: " + str(titleID))
     F.close()
 
-
-    #newTID must be 16 characters in length, and in hex?
-    #check lines 119-126 in original
-    newTID = input("Enter new title ID: ")
+    #new TID must be 8 hex characters in length.
+    if (args.n):
+        newTID=args.n
+    else:
+        newTID = input("Enter new title ID: ")
     if (len(newTID) != 8):
         print("new ID length must be 8")
         exit()
-    #elif not hex
-        #print("new ID must be in hex (0-9, a-f characters)")
-        #exit()
+    elif (all(c in string.hexdigits for c in newTID)==False):
+        print("new ID must be in hex (0-9, a-f characters)")
+        exit()
     else:
-        #reverse bytes again
+        #reverse bytes again to put them like how we found the original ones
         writeTID=""
         for i in range(4):
             writeTID = writeTID + newTID[(3-i)*2:((3-i)*2)+2]
 
+        #and finally, write the new TID to the file.
         F = open(filepath, "r+b")
         F.seek(startingOffset + 0x118, 0)
         F.write(bytes.fromhex(writeTID))
