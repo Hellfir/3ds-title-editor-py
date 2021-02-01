@@ -7,11 +7,7 @@ def isNCCH(filetype):
     return filetype[0] == 0x4E and filetype[1] == 0x43 and filetype[2] == 0x43 and filetype[3] == 0x48
 
 def readTID(F, startingOffset):
-    #HELP
-    #takes input file F, and offset to start reading as input
-    #seeks to startingoffset + a bit from start of file
-    #then reads some bytes (see line 67 of 3dstitleeditorform.cs from original)
-    #afterwards, reverses the array, and returns it after being transformed to a string with hypens changed to spaces
+    #seeks to start of TID, reads 4 bytes, then reverses them to be in correct order.
     programCode = []
     F.seek(startingOffset + 0x118, 0)
     programCode = F.read(4)
@@ -71,8 +67,6 @@ if __name__ == '__main__':
         writeTID=""
         for i in range(4):
             writeTID = writeTID + newTID[(3-i)*2:((3-i)*2)+2]
-
-        print(writeTID)
 
         F = open(filepath, "r+b")
         F.seek(startingOffset + 0x118, 0)
