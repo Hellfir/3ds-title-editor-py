@@ -67,8 +67,15 @@ if __name__ == '__main__':
         #print("new ID must be in hex (0-9, a-f characters)")
         #exit()
     else:
-        F = open(filepath, "wb")
+        #reverse bytes again
+        writeTID=""
+        for i in range(4):
+            writeTID = writeTID + newTID[(3-i)*2:((3-i)*2)+2]
+
+        print(writeTID)
+
+        F = open(filepath, "r+b")
         F.seek(startingOffset + 0x118, 0)
-        F.write(bytes.fromhex(newTID))
+        F.write(bytes.fromhex(writeTID))
         F.close
         print("Title ID changed.")
