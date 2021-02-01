@@ -67,16 +67,8 @@ if __name__ == '__main__':
         #print("new ID must be in hex (0-9, a-f characters)")
         #exit()
     else:
-
-    #titleIdBytes = []
-    #for i in range(int(len(newTID)/2)):
-        #no idea how to convert it to bytes, or what type of values are needed precisely
-    #    titleIdBytes[i] = convertToBytes(newTID[(i*2):((i*2)+2)]
-    #titleIdBytes = titleIdBytes[-1:-(len(titleIdBytes)+1):-1]
-
-    #F = open(filepath, wb)
-    #F.seek(startingOffset + 0x118, 0)
-    #F.write(titleIdBytes)
-    #F.close()
-    
-    #print("Title ID changed.")
+        F = open(filepath, "wb")
+        F.seek(startingOffset + 0x118, 0)
+        F.write(bytes.fromhex(newTID))
+        F.close
+        print("Title ID changed.")
